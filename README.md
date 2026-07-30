@@ -34,9 +34,25 @@ Correctly remembers conversation history, but sometimes drifts
 off-topic in its responses — a known limitation of smaller models 
 compared to production LLMs like Claude/GPT.
 
+### 4. Combined CLI Tool (`combined_tool.ipynb`)
+A single menu-driven tool that merges the summarizer, sentiment classifier, and chatbot into one script.
+
+**How it works:**
+- Loads one shared Phi-3-mini model (`generator`) used by all three features
+- Menu loop lets the user pick: summarize text, classify sentiment, chat, or exit
+- Chat mode keeps its own conversation history, same as the standalone chatbot
+
+**How to run:**
+1. Open in Google Colab
+2. Enable GPU: Runtime → Change runtime type → T4 GPU
+3. Run the model-loading cell first, then the menu cell
+4. Choose an option (1-4) when prompted
+
 ## What I learned
 - How to use the Anthropic API and free Hugging Face models
 - How to safely store secrets using `.env` files and `.gitignore`
 - Git basics: init, add, commit, push
 - How GitHub's secret scanning protects against leaked API keys
 - How to give a chatbot conversation memory
+- Combining multiple features into one tool using if/elif branching
+- Structuring a menu-driven CLI program with a main loop
