@@ -68,31 +68,57 @@ generative model.
 3. Modify the `text` variable to try it with different input text
 
 ### 6. Semantic Search Over Notes (`semantic-search-notes/`)
-A tool that searches personal notes by meaning, not exact keywords, using
-sentence embeddings and cosine similarity.
+A tool that searches a folder of personal `.txt` notes by **meaning**, not
+exact keywords, using sentence embeddings and cosine similarity. Built with
+two interfaces: a command-line version and a Streamlit web app.
+
+**Why this is different from keyword search:**
+A keyword search for "optimize a model" finds nothing in a note that says
+"gradient descent minimizes a loss function" — no shared words. This tool
+finds it anyway, because it compares the *meaning* of the query against the
+*meaning* of each note.
 
 **How it works:**
 - Loads a free embedding model (`all-MiniLM-L6-v2`) via `sentence-transformers`
-- Converts notes and search queries into embeddings (vectors representing meaning)
-- Compares them using cosine similarity to find the closest semantic match
-- Supports uploading real `.txt` files (not just hardcoded notes)
-- Includes a relevance threshold — returns "no good match found" instead of
-  forcing a bad answer when nothing is actually relevant
+- Reads every `.txt` file from a `notes/` folder
+- Converts each note (and the search query) into a 384-number embedding vector
+- Compares the query against every note using cosine similarity (0 = unrelated, 1 = identical meaning)
+- Returns the highest-scoring note, along with its filename and similarity score
+- Includes a relevance threshold (`MIN_SCORE = 0.2`) — returns "no good match found" instead of confidently returning an irrelevant note when nothing actually matches well
 
-**How to run:**
-1. Open in Google Colab
-2. Run all cells in order
-3. When prompted, upload your own `.txt` notes
-4. Type search queries; type "exit" to quit
+**Two interfaces:**
+- **CLI** (`search.py`) — terminal-based, loops until you type "exit"
+  ```bash
+  pip install -r requirements.txt
+  python search.py --notes_dir notes
+  ```
+- **Web app** (`app.py`) — Streamlit interface with a sidebar listing loaded notes, a search box, and cached model/data loading so it doesn't reload on every query
+  ```bash
+  pip install -r requirements.txt
+  streamlit run app.py
+  ```
+
+**Example session (CLI):**
+```
+Search your notes: How do I stop my model from overfitting?
+Best match (0.36) — overfitting.txt:
+  Overfitting occurs when a machine learning model learns the training
+  data too well, including its noise, and fails to generalize to new,
+  unseen data.
+
+Search your notes: best pizza toppings
+No good match found in your notes.
+```
 
 **Known Limitations:**
-- Notes are held in memory only — no persistent vector database
-- No chunking — works with whole notes, not large documents split into pieces
-- Uses brute-force cosine similarity — fine for a handful of notes, wouldn't
-  scale to thousands without a proper vector index (e.g. Chroma)
-
-This is the "Retrieval" half of RAG — Month 4 adds the "Generation" half by
-feeding matched notes to an LLM to produce full answers.
+- Loads the entire notes folder into memory at once — fine for a small
+  collection, would need a real vector database (e.g. Chroma, Pinecone) to
+  scale to thousands of documents
+- Only supports plain `.txt` files — PDFs/Markdown would need a
+  text-extraction step first
+- This is the **retrieval** half of a RAG (Retrieval-Augmented Generation)
+  pipeline — the natural next step (Month 4) is feeding the retrieved note
+  into an LLM to generate a full answer instead of just returning the raw note
 
 ## What I learned
 - How to use the Anthropic API and free Hugging Face models
@@ -105,3 +131,5 @@ feeding matched notes to an LLM to produce full answers.
 - Character-level tokenization and the next-token prediction training signal behind language models
 - How embeddings capture semantic meaning, and how cosine similarity measures it
 - Why a relevance threshold matters in search tools (avoiding forced, low-confidence matches)
+- Building the same tool with two different interfaces (CLI with `argparse`, web app with Streamlit) from shared core logic
+- Using Streamlit's caching (`@st.cache_resource`, `@st.cache_data`) to avoid reloading a model or re-reading files on every interaction
