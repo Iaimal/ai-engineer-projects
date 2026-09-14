@@ -1,0 +1,1 @@
+Neural networks are composed of layers of interconnected neurons that transform input data through weighted connections and activation functions.
