@@ -67,6 +67,33 @@ generative model.
 2. Run all cells in order (Runtime → Run all)
 3. Modify the `text` variable to try it with different input text
 
+### 6. Semantic Search Over Notes (`semantic-search-notes/`)
+A tool that searches personal notes by meaning, not exact keywords, using
+sentence embeddings and cosine similarity.
+
+**How it works:**
+- Loads a free embedding model (`all-MiniLM-L6-v2`) via `sentence-transformers`
+- Converts notes and search queries into embeddings (vectors representing meaning)
+- Compares them using cosine similarity to find the closest semantic match
+- Supports uploading real `.txt` files (not just hardcoded notes)
+- Includes a relevance threshold — returns "no good match found" instead of
+  forcing a bad answer when nothing is actually relevant
+
+**How to run:**
+1. Open in Google Colab
+2. Run all cells in order
+3. When prompted, upload your own `.txt` notes
+4. Type search queries; type "exit" to quit
+
+**Known Limitations:**
+- Notes are held in memory only — no persistent vector database
+- No chunking — works with whole notes, not large documents split into pieces
+- Uses brute-force cosine similarity — fine for a handful of notes, wouldn't
+  scale to thousands without a proper vector index (e.g. Chroma)
+
+This is the "Retrieval" half of RAG — Month 4 adds the "Generation" half by
+feeding matched notes to an LLM to produce full answers.
+
 ## What I learned
 - How to use the Anthropic API and free Hugging Face models
 - How to safely store secrets using `.env` files and `.gitignore`
@@ -76,3 +103,5 @@ generative model.
 - Combining multiple features into one tool using if/elif branching
 - Structuring a menu-driven CLI program with a main loop
 - Character-level tokenization and the next-token prediction training signal behind language models
+- How embeddings capture semantic meaning, and how cosine similarity measures it
+- Why a relevance threshold matters in search tools (avoiding forced, low-confidence matches)
